@@ -60,7 +60,7 @@ class FileDetailView(LoginRequiredMixin, DetailView):
                 return render(
                     self.request,
                     "fileapp/filemodel_detail.html",
-                    {"fileitem": file_item},
+                    {"fileitem": file_item, "room_name": file_item.id},
                 )
             else:
                 return render(self.request, "403.html", {})

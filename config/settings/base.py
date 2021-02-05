@@ -304,7 +304,7 @@ SOCIALACCOUNT_ADAPTER = (
 
 # Your stuff...
 # ------------------------------------------------------------------------------
-ASGI_APPLICATION = "core.routing.application"
+ASGI_APPLICATION = "config.routing.application"
 
 CHANNEL_LAYERS = {
     "default": {
