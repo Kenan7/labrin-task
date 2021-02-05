@@ -271,4 +271,4 @@ my_awesome_project/media/
 
 .pytest_cache/
 
-
+*.Identifier

@@ -33,3 +33,6 @@ class FileModel(Model):
     )
 
     owner = ForeignKey(User, related_name="owner", on_delete=CASCADE)
+
+    # def get_absolute_url(self):
+    #     return reverse("book_detail", args=[self.pk])

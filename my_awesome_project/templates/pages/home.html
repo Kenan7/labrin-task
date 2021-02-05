@@ -2,24 +2,107 @@
 
 {% block content %}
 
-<div class="container border border-dark">
-  <ul class="list-group filee" id="file-list">
-    <li class="list-group-item">An item</li>
-    <li class="list-group-item">A second item</li>
-    <li class="list-group-item">A third item</li>
-    <li class="list-group-item">A fourth item</li>
-    <li class="list-group-item">And a fifth one</li>
+
+{% if user.is_authenticated %}
+<div class="container" id="app">
+  {% if filemodel_list %}
+  <ul class="list-group file-list" id="file-list">
+    {% include 'pages/filelist_swap.html' %}
   </ul>
+
+
+  <div class="d-flex justify-content-end">
+    <div class="row">
+      <form @submit="onSubmit">
+        <div class="col-4">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" v-model="can_view">
+              <span class="checkbox-icon-wrapper">
+                <span class="checkbox-icon glyphicon glyphicon-ok"></span>
+              </span>
+              Viewer
+            </label>
+          </div>
+
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" v-model="can_comment">
+              <span class="checkbox-icon-wrapper">
+                <span class="checkbox-icon glyphicon glyphicon-ok"></span>
+              </span>
+              Commenter
+            </label>
+          </div>
+        </div>
+
+
+        <div class="col-8">
+          <div class="input-group">
+            <input type="text" name="" id="" v-model="username_or_email">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="submit">Button</button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+
+  {% else %}
+  <div class="mx-auto">
+    <h3>You don't have any file</h3>
+  </div>
+  {% endif %}
 </div>
+
 
 
 <div class="fixed-bottom">
   <div class="p-4">
-
-    <form action="/files/upload/" class="dropzone" id="my-awesome-dropzone">
+    <h3>{% url 'file_upload_view' %}</h3>
+    <form action="{% url 'file_upload_view' %}" class="dropzone" id="my-awesome-dropzone">
       {% csrf_token %}
       <div class="fallback"><input type="file" name="file" multiple></div>
     </form>
   </div>
 </div>
+
+{% else %}
+
+<h1><a href="{% url 'account_login' %}">Login</a> or <a href="{% url 'account_signup' %}">Register</a> to upload
+  files.</h1>
+{% endif %}
+
+
 {% endblock content %}
+
+
+{% block inline_javascript %}
+<script>
+  const app = Vue.createApp({
+    delimiters: ["[[", "]]"],
+    data() {
+      return {
+        selected_files: [],
+        can_view: false,
+        can_comment: false,
+        username_or_email: ''
+      }
+    },
+    methods: {
+      addToSelected(event) {
+        this.selected_files.push(event.target.value);
+        console.log(this.selected_files);
+      },
+      onSubmit() {
+
+      }
+    }
+  });
+
+  app.mount('#app')
+</script>
+{% endblock inline_javascript %}

@@ -76,8 +76,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "my_awesome_project.users.apps.UsersConfig",
-    "fileapp.apps.FileappConfig",
-    # Your stuff: custom apps go here
+    "my_awesome_project.fileapp.apps.FileappConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

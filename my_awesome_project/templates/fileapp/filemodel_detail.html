@@ -1,0 +1,48 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}{{ fileitem.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="row">
+    <div class="col-8">
+      <h2>{{ fileitem.name }}</h2>
+
+    </div>
+
+    <div class="col-4">
+      <div class="viewers mb-4">
+        <h3>Viewers</h3>
+        <ul class="list-group">
+
+          {% for viewer in fileitem.viewers.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ viewer.email }}
+            <a href="#">
+              <i class="bi bi-trash bi-xl"></i></a>
+          </li>
+          {% endfor %}
+
+        </ul>
+      </div>
+
+      <div class="commenters">
+        <h3>Commenters</h3>
+        <ul class="list-group">
+
+          {% for commenter in fileitem.commenters.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ commenter.email }}<a
+              href="#">
+              <i class="bi bi-trash bi-xl"></i></a>
+          </li>
+          {% endfor %}
+
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+{% endblock content %}

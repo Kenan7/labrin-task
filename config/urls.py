@@ -5,13 +5,13 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+from my_awesome_project.fileapp.views import file_list_view
+
 urlpatterns = [
-    path(
-        "", TemplateView.as_view(template_name="pages/home.html"), name="home"
-    ),
+    path("", file_list_view, name="home"),
     path(
         "files/",
-        include("fileapp.urls"),
+        include("my_awesome_project.fileapp.urls"),
     ),
     path(
         "about/",

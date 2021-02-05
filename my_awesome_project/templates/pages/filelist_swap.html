@@ -1,0 +1,10 @@
+{% for item in filemodel_list %}
+
+<li class="list-group-item d-flex justify-content-between align-items-center">
+  <a href="{% url 'file_detail_view_url' item.id %}">
+    {{ item.name }}</a>
+
+  <input type="checkbox" class="justify-content-end" value="{{item.id}}" @change="addToSelected($event)" />
+</li>
+
+{% endfor %}
