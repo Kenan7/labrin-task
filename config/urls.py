@@ -14,6 +14,10 @@ urlpatterns = [
         include("my_awesome_project.fileapp.urls"),
     ),
     path(
+        "chat/",
+        include("chat.urls"),
+    ),
+    path(
         "about/",
         TemplateView.as_view(template_name="pages/about.html"),
         name="about",
