@@ -1,0 +1,25 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+
+<div class="container border border-dark">
+  <ul class="list-group filee" id="file-list">
+    <li class="list-group-item">An item</li>
+    <li class="list-group-item">A second item</li>
+    <li class="list-group-item">A third item</li>
+    <li class="list-group-item">A fourth item</li>
+    <li class="list-group-item">And a fifth one</li>
+  </ul>
+</div>
+
+
+<div class="fixed-bottom">
+  <div class="p-4">
+
+    <form action="/files/upload/" class="dropzone" id="my-awesome-dropzone">
+      {% csrf_token %}
+      <div class="fallback"><input type="file" name="file" multiple></div>
+    </form>
+  </div>
+</div>
+{% endblock content %}
