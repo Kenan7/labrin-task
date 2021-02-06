@@ -6,7 +6,6 @@ from django.db.models import (
     ForeignKey,
     Manager,
     ManyToManyField,
-    Model,
 )
 
 from my_awesome_project.common import TimeStampedModel
@@ -26,6 +25,7 @@ class FileModelManager(Manager):
 
 class FileModel(TimeStampedModel):
     name = CharField(max_length=20)
+
     description = CharField(
         max_length=1000, default="default file description"
     )

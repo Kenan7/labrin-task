@@ -314,3 +314,13 @@ CHANNEL_LAYERS = {
         },
     },
 }
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "delete_files_older_than_x_days": {
+        "task": "my_awesome_project.fileapp.tasks.delete_old_files",
+        "schedule": 20.0,
+    }
+}
+
+# TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
