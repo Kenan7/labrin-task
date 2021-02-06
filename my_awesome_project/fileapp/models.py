@@ -1,6 +1,4 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import models
 from django.db.models import (
     CASCADE,
     CharField,
@@ -10,6 +8,8 @@ from django.db.models import (
     ManyToManyField,
     Model,
 )
+
+from my_awesome_project.common import TimeStampedModel
 
 User = get_user_model()
 # User = settings.AUTH_USER_MODEL
@@ -24,7 +24,7 @@ class FileModelManager(Manager):
         return self.all().order_by("-id")[:10]
 
 
-class FileModel(Model):
+class FileModel(TimeStampedModel):
     name = CharField(max_length=20)
     description = CharField(
         max_length=1000, default="default file description"
