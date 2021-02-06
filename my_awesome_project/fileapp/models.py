@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import (
     CASCADE,
@@ -10,7 +11,8 @@ from django.db.models import (
     Model,
 )
 
-User = settings.AUTH_USER_MODEL
+User = get_user_model()
+# User = settings.AUTH_USER_MODEL
 
 NULL_AND_BLANK = {"null": True, "blank": True}
 BLANK = {"blank": True}
