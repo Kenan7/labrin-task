@@ -4,48 +4,100 @@
 {% block title %}{{ fileitem.name }}{% endblock %}
 
 {% block content %}
-<div class="container">
 
-  <div class="row">
-    <div class="col-8">
-      <h2>{{ fileitem.name }} -- {{ fileitem.id }} -- {{ room_name }}</h2>
-      <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-      <input id="chat-message-input" type="text" size="100"><br>
-      <input id="chat-message-submit" type="button" value="Send">
-      {{ room_name|json_script:"room-name" }}
+{{ fileitem.id|json_script:"fileid" }}
 
+<div class="container" id="app">
+
+    <div class="row">
+        <div class="col-8">
+            <h2 class="mb-4"><a href="{{ fileitem.file_itself.url }}" class="text-dark">{{ fileitem.name }}</a></h2>
+
+            <ul class="list-group" id="chat-log">
+            </ul>
+
+            <div class="row mt-2 g-3">
+
+                <div class="col-auto">
+                    <input type="text" class="form-control" id="chat-message-input">
+                </div>
+                <div class="col-auto">
+                    <button type="button" id="chat-message-submit"
+                        class="btn btn-dark mb-3 {% if user not in fileitem.commenters.all %}disabled{%endif%}">send</button>
+                </div>
+            </div>
+            {{ room_name|json_script:"room-name" }}
+
+        </div>
+
+        <div class="col-4">
+            <div class="viewers mb-4">
+                <h3>Viewers</h3>
+                <ul class="list-group">
+
+                    {% for viewer in fileitem.viewers.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">{{ viewer.username }}
+                        <form action="{% url 'remove_viewer' viewer_id=viewer.id filemodel_id=fileitem.id %}"
+                            method="POST" name="form_remove_viewer_{{viewer.id}}_">{% csrf_token %}
+                            <span class="clickable" onclick="form_remove_viewer_{{viewer.id}}_.submit()">
+                                <i class="bi bi-trash bi-xl"></i></span>
+                        </form>
+                    </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+
+            <div class="commenters mb-4">
+                <h3>Commenters</h3>
+                <ul class="list-group">
+
+                    {% for commenter in fileitem.commenters.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ commenter.username }}
+
+                        <form action="{% url 'remove_commenter' commenter_id=commenter.id filemodel_id=fileitem.id %}"
+                            method="POST" name="form_remove_commenter_{{commenter.id}}_">{% csrf_token %}
+                            <span class="clickable" onclick="form_remove_commenter_{{commenter.id}}_.submit()">
+                                <i class="bi bi-trash bi-xl"></i></span>
+                        </form>
+                    </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+
+            <div class="p-1 d-flex justify-content-center">
+                <form class="" method="POST" action="{% url 'add_viewer_commenter_to_file' filemodel_id=fileitem.id %}">
+                    {% csrf_token %}
+                    <div class="row g-5 mb-2">
+                        <div class="col-auto">
+
+                            <label for="viewer_check">Viewer</label>
+                            <input type="checkbox" name="viewer_check" id="">
+                        </div>
+
+                        <div class="col-auto">
+
+                            <label for="commenter_check">Commenter</label>
+                            <input type="checkbox" name="commenter_check" id="">
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-auto">
+                            <input type="text" class="form-control" id="inputPassword2" placeholder="email or username"
+                                name="credentials">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-dark mb-3">add</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div class="col-4">
-      <div class="viewers mb-4">
-        <h3>Viewers</h3>
-        <ul class="list-group">
-
-          {% for viewer in fileitem.viewers.all %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">{{ viewer.email }}
-            <a href="#">
-              <i class="bi bi-trash bi-xl"></i></a>
-          </li>
-          {% endfor %}
-
-        </ul>
-      </div>
-
-      <div class="commenters">
-        <h3>Commenters</h3>
-        <ul class="list-group">
-
-          {% for commenter in fileitem.commenters.all %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">{{ commenter.email }}<a
-              href="#">
-              <i class="bi bi-trash bi-xl"></i></a>
-          </li>
-          {% endfor %}
-
-        </ul>
-      </div>
-    </div>
-  </div>
 
 
 </div>
@@ -55,44 +107,70 @@
 
 {% block javascript %}
 <script>
+    // async function removeFromViewers(event) {
 
-  setTimeout(function () {
-    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+    //     const filemodel_id = JSON.parse(document.getElementById('fileid').textContent);
+    //     const baseurl = "http://" + window.location.host + "/remove/viewer/";
 
-    const chatSocket = new WebSocket(
-      'ws://'
-      + window.location.host
-      + '/ws/chat/'
-      + roomName
-      + '/'
-    );
+    //     const requestOptions = {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({
+    //             user_id: event.target.value,
+    //             filemodel_id: filemodel_id
+    //         })
+    //     };
+    //     const response = await fetch(baseurl, requestOptions);
+    //     const data = await response.json();
+    //     console.log(data);
+    // };
 
-    chatSocket.onmessage = function (e) {
-      const data = JSON.parse(e.data);
-      document.querySelector('#chat-log').value += (data.message + '\n');
-    };
+    function createLiElement(name) {
+        let li = document.createElement('li');
+        li.textContent = name;
+        li.classList.add('list-group-item');
+        return li;
+    }
 
-    chatSocket.onclose = function (e) {
-      console.error('Chat socket closed unexpectedly');
-    };
+    setTimeout(function () {
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
-    document.querySelector('#chat-message-input').focus();
-    document.querySelector('#chat-message-input').onkeyup = function (e) {
-      if (e.keyCode === 13) {  // enter, return
-        document.querySelector('#chat-message-submit').click();
-      }
-    };
+        const chatSocket = new WebSocket(
+            'ws://' +
+            window.location.host +
+            '/ws/chat/' +
+            roomName +
+            '/'
+        );
 
-    document.querySelector('#chat-message-submit').onclick = function (e) {
-      const messageInputDom = document.querySelector('#chat-message-input');
-      const message = messageInputDom.value;
-      chatSocket.send(JSON.stringify({
-        'message': message
-      }));
-      messageInputDom.value = '';
-    };
-  }, 3000);
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            const ul = document.querySelector('#chat-log');
+            ul.appendChild(createLiElement(data.message));
+        };
 
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) { // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function (e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+    }, 3000);
 
 </script>
 {% endblock javascript %}

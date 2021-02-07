@@ -1,3 +1,4 @@
+# from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import (
     CASCADE,
@@ -22,6 +23,9 @@ class FileModelManager(Manager):
     def last_messages(self):
         return self.all().order_by("-id")[:10]
 
+    def owners_all(self, id):
+        return self.select_related("owner").filter(owner=id)
+
 
 class FileModel(TimeStampedModel):
     name = CharField(max_length=20)
@@ -43,7 +47,7 @@ class FileModel(TimeStampedModel):
         **BLANK,
     )
 
-    owner = ForeignKey(User, related_name="owner", on_delete=CASCADE)
+    owner = ForeignKey(User, related_name="owners", on_delete=CASCADE)
 
     objects = FileModelManager()
 

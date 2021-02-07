@@ -13,7 +13,7 @@ indent_style = space
 indent_size = 4
 
 [*.py]
-line_length = 88
+line_length = 79
 known_first_party = my_awesome_project,config
 multi_line_output = 3
 default_section = THIRDPARTY
@@ -26,7 +26,7 @@ use_parentheses = true
 
 [*.{html,css,scss,json,yml}]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false
