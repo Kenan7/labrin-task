@@ -1,10 +1,29 @@
 {% for item in filemodel_list %}
 
 <li class="list-group-item d-flex justify-content-between align-items-center">
-  <a href="{% url 'file_detail_view_url' item.id %}">
-    {{ item.name }}</a>
+    <a href="{% url 'file_detail_view_url' item.id %}">
+        {{ item.name }}</a>
 
-  <input type="checkbox" class="justify-content-end" value="{{item.id}}" @change="addToSelected($event)" />
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div class="d-flex ms-4">
+            <i class="bi bi-eye bi-ll" name="viewer_icon"></i>
+            <label for="viewer_icon">&nbsp{{item.viewers.all|length}}</label>
+
+        </div>
+
+        <div class="d-flex mx-4 align-items-center">
+            <i class="bi bi-chat bi-l" name="commenter_icon"></i>
+            <label for="commenter_icon">&nbsp{{item.commenters.all|length}}</label>
+        </div>
+
+        <div class="d-flex flex-column">
+            <p class="mb-0"><span class="text-muted">Created at: </span>{{ item.created_at|date:'H:i / n M' }}</p>
+            <p class="mb-0"><span class="text-muted">Modified at: </span>{{ item.modified_at|date:'H:i / n M' }}</p>
+        </div>
+
+    </div>
 </li>
 
 {% endfor %}

@@ -6,6 +6,7 @@
 {% block content %}
 
 {{ fileitem.id|json_script:"fileid" }}
+{{ user.username|json_script:"current_username" }}
 
 <div class="container" id="app">
 
@@ -127,15 +128,21 @@
     //     console.log(data);
     // };
 
+
+
     function createLiElement(name) {
         let li = document.createElement('li');
-        li.textContent = name;
+        let span = document.createElement('span');
+        span.textContent = name;
         li.classList.add('list-group-item');
+        li.classList.add('te');
         return li;
     }
 
     setTimeout(function () {
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const current_username = JSON.parse(document.getElementById('current_username').textContent);
 
         const chatSocket = new WebSocket(
             'ws://' +
@@ -148,7 +155,8 @@
         chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             const ul = document.querySelector('#chat-log');
-            ul.appendChild(createLiElement(data.message));
+            ul.appendChild(createLiElement(data.message.from + "-> " + data.message.text + " :" + data
+                .message.created_at + ":"));
         };
 
         chatSocket.onclose = function (e) {
@@ -166,11 +174,13 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
+                'command': 'new_message',
+                'from': current_username
             }));
             messageInputDom.value = '';
         };
-    }, 3000);
+    }, 1500);
 
 </script>
 {% endblock javascript %}
