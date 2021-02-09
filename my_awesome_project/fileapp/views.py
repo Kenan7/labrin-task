@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls.base import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 
+from .forms import FileUploadForm
 from .models import FileModel
 
 User = get_user_model()
@@ -22,10 +23,13 @@ def file_upload_view(request):
         current_user = request.user
 
         my_file = request.FILES.get("file")
+        description = request.POST.get(
+            "file_description", "default description"
+        )
 
         file_obj = FileModel.objects.create(
             name=my_file.name,
-            description="def",
+            description=description,
             file_itself=my_file,
             owner=current_user,
         )
@@ -56,7 +60,7 @@ def file_upload_view(request):
 #         ):
 #             return render(
 #                 request,
-#                 "fileapp/filemodel_detail.html",
+#                 "pages/filemodel_detail.html",
 #                 {"fileitem": file_item, "room_name": file_item.id},
 #             )
 #         else:
@@ -81,7 +85,7 @@ class FileDetailView(LoginRequiredMixin, DetailView):
             ):
                 return render(
                     self.request,
-                    "fileapp/filemodel_detail.html",
+                    "pages/filemodel_detail.html",
                     {"fileitem": file_item, "room_name": file_item.id},
                 )
             else:
@@ -188,3 +192,26 @@ def add_viewer_commenter(request, filemodel_id):
                 return render(request, "403.html", {})
     else:
         return render(request, "403.html", {})
+
+
+@login_required
+def file_create_view(request):
+    form = FileUploadForm(request.POST or None)
+
+    queryset = None
+    if request.method == "POST":
+        print(form)
+        if form.is_valid():
+            form.save()
+
+        return redirect(reverse("file_create_view"))
+
+    elif request.method == "GET":
+        current_user = User.objects.get(id=request.user.id)
+        queryset = FileModel.objects.filter(owner=current_user)
+
+    return render(
+        request,
+        "pages/create_filemodel.html",
+        {"form": form, "filemodel_list": queryset},
+    )

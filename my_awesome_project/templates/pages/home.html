@@ -4,12 +4,24 @@
 
 
 {% if user.is_authenticated %}
-<div class="container mt-4" id="app">
+<div class="container">
+    <div class="p-0">
+        <div class="p-5">
+            <form action="{% url 'file_upload_view' %}" class="dropzone" id="customDropzone">
+                <input type="text" name="file_description" placeholder="write a description first"
+                    value="default description   // edit this before you upload the file"
+                    class="form-control dropzone-description" />
+                {% csrf_token %}
+                <div class="fallback"><input type="file" name="file" multiple></div>
+            </form>
+        </div>
+    </div>
+
+
     {% if filemodel_list %}
-    <ul class="list-group file-list" id="file-list">
+    <ul class="list-group file-list mb-5" id="file-list">
         {% include 'pages/filelist_swap.html' %}
     </ul>
-
 
 
     {% else %}
@@ -20,15 +32,9 @@
 </div>
 
 
-
+<!-- TODO: change dropzone to accept only one file  -->
 <div class="fixed-bottom">
-    <div class="p-4">
-        <h3>{% url 'file_upload_view' %}</h3>
-        <form action="{% url 'file_upload_view' %}" class="dropzone" id="my-awesome-dropzone">
-            {% csrf_token %}
-            <div class="fallback"><input type="file" name="file" multiple></div>
-        </form>
-    </div>
+
 </div>
 
 {% else %}

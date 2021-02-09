@@ -103,7 +103,7 @@ class ChatConsumer(WebsocketConsumer):
             }
         self.send_message(content)
 
-    def fetch_for_all_after_delete(self, data=None):
+    def fetch_all_after_delete(self, data=None):
         self.filemodel_object = FileModel.objects.get(id=self.room_name)
         messages = self.filemodel_object.messages.all()
 
@@ -129,7 +129,7 @@ class ChatConsumer(WebsocketConsumer):
             self.filemodel_object = FileModel.objects.get(id=self.room_name)
             self.filemodel_object.messages.get(id=message["message"]).delete()
 
-            self.fetch_for_all_after_delete()
+            self.fetch_all_after_delete()
         finally:
             pass
 

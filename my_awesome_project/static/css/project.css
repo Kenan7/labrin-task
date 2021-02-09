@@ -58,7 +58,11 @@
 	max-height: fit-content;
 } */
 
-/* .scrollable {
+.scrollable {
 	overflow: auto;
 	height: 20%;
-} */
+}
+
+.dropzone-description {
+	border: 1px solid black;
+}

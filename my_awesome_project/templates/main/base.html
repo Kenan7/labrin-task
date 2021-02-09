@@ -79,12 +79,12 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
     <!-- <script defer src="https://cdn.jsdelivr.net/npm/vue"></script> -->
 
-    <script defer src="{% static 'js/project.js' %}"></script>
 
     <!-- <script defer src="{% static 'js/fetch.umd.js' %}"></script> -->
 
-    <script defer src="{% static 'js/dropzone/dropzone.min.js' %}"></script>
+    <script src="{% static 'js/dropzone/dropzone.min.js' %}"></script>
 
+    <script src="{% static 'js/project.js' %}"></script>
 
     {% endblock javascript %}
 
@@ -119,6 +119,14 @@
                         {# URL provided by django-allauth/account/urls.py #}
                         <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
                     </li>
+
+                    <li class="nav-item ms-3">
+                        <div class="badge bg-dark text-wrap">
+                            <a class="nav-link text-light" href="{% url 'file_create_view' %}"> // Create (the
+                                Django
+                                way)</a></div>
+                    </li>
+
                     {% else %}
                     <li class="nav-item">
                         {# URL provided by django-allauth/account/urls.py #}

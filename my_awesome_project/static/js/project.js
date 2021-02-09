@@ -1,38 +1,19 @@
-// /* Project specific Javascript goes here. */
-// var filelist = document.getElementById('file-list');
+// Mirkenan
 
-// const animateCSS = (element, animation, prefix = 'animate__') =>
-// 	// We create a Promise and return it
-// 	new Promise((resolve, reject) => {
-// 		const animationName = `${prefix}${animation}`;
-// 		const node = document.querySelector(element);
+// window.onload = loadWhateverNeeded();
 
-// 		node.classList.add(`${prefix}animated`, animationName);
+// function loadWhateverNeeded() {}
 
-// 		// When the animation ends, we clean the classes and resolve the Promise
-// 		function handleAnimationEnd(event) {
-// 			event.stopPropagation();
-// 			node.classList.remove(`${prefix}animated`, animationName);
-// 			resolve('Animation ended');
-// 		}
+setTimeout(function() {
+	let field = document.getElementById('create_file_name_field');
+	field.removeAttribute('required');
+}, 1500);
 
-// 		node.addEventListener('animationend', handleAnimationEnd, { once: true });
-// 	});
-
-// setInterval(function() {
-// 	animateCSS('.filee', 'fadeOut');
-// 	filelist.style.opacity = '0';
-
-// 	setTimeout(function() {
-// 		animateCSS('.filee', 'fadeIn');
-// 	}, 1000);
-// }, 4000);
-
-// // setInterval(function() {
-// // 	filelist.classList.add('animate__fadeOut');
-// // 	setTimeout(function() {
-// // 		filelist.classList.remove('animate__fadeOut');
-// // 		filelist.classList.add('animate__fadeInDown');
-// // 	}, 2000);
-// // 	filelist.classList.remove('animate__fadeInDown');
-// // }, 5000);
+Dropzone.options.customDropzone = {
+	// the page will reload once the upload is completed
+	init : function() {
+		this.on('complete', function(file) {
+			location.reload();
+		});
+	}
+};

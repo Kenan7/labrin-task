@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     add_viewer_commenter,
+    file_create_view,
     file_detail_view,
     file_upload_view,
     remove_from_commenter,
@@ -34,7 +35,9 @@ urlpatterns = [
         add_viewer_commenter,
         name="add_viewer_commenter_to_file",
     ),
-    # path(
-    #     "refresh/",
-    # ),
+    path(
+        "create/",
+        file_create_view,
+        name="file_create_view",
+    ),
 ]
