@@ -98,6 +98,10 @@ class FileListView(LoginRequiredMixin, ListView):
     model = FileModel
     template_name = "pages/home.html"
 
+    def get_queryset(self):
+        current_user = User.objects.get(id=self.request.user.id)
+        return FileModel.objects.filter(owner=current_user)
+
 
 file_list_view = FileListView.as_view()
 
