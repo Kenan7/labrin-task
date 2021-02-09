@@ -98,10 +98,6 @@ class FileListView(LoginRequiredMixin, ListView):
     model = FileModel
     template_name = "pages/home.html"
 
-    # def get_queryset(self):
-    #     print(super().get_queryset())
-    #     return super().get_queryset()
-
 
 file_list_view = FileListView.as_view()
 

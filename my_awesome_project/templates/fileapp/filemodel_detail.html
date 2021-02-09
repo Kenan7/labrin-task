@@ -240,6 +240,7 @@
             console.log(data);
             if (data.command === 'messages') {
                 console.log('uh uh new messages are comiing. ruuun');
+                ul.innerHTML = '';
 
 
                 for (let i = 0; i < data.messages.length; i++) {
@@ -247,6 +248,8 @@
                 }
 
 
+            } else if (data.command === 'empty') {
+                ul.innerHTML = '';
             } else {
                 ul.appendChild(createMessage(data.message));
 

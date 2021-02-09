@@ -92,11 +92,33 @@ class ChatConsumer(WebsocketConsumer):
     def fetch_messages(self, data=None):
         self.filemodel_object = FileModel.objects.get(id=self.room_name)
         messages = self.filemodel_object.messages.all()
-        content = {
-            "command": "messages",
-            "messages": self.messages_to_json(messages),
-        }
+        if len(messages) == 0:
+            content = {
+                "command": "empty",
+            }
+        else:
+            content = {
+                "command": "messages",
+                "messages": self.messages_to_json(messages),
+            }
         self.send_message(content)
+
+    def fetch_for_all_after_delete(self, data=None):
+        self.filemodel_object = FileModel.objects.get(id=self.room_name)
+        messages = self.filemodel_object.messages.all()
+
+        if len(messages) == 0:
+            content = {
+                "command": "empty",
+            }
+        else:
+            content = {
+                "command": "messages",
+                "messages": self.messages_to_json(messages),
+            }
+        self.send_chat_message_with_type(
+            "messages", self.messages_to_json(messages)
+        )
 
     def delete_message(self, message):
         log.info(message)
@@ -107,7 +129,7 @@ class ChatConsumer(WebsocketConsumer):
             self.filemodel_object = FileModel.objects.get(id=self.room_name)
             self.filemodel_object.messages.get(id=message["message"]).delete()
 
-            self.fetch_messages()
+            self.fetch_for_all_after_delete()
         finally:
             pass
 
@@ -143,9 +165,9 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name, {"type": "chat_message", "message": message}
         )
 
-    def send_chat_message_with_type(self, command):
+    def send_chat_message_with_type(self, command, message):
         async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type": command}
+            self.room_group_name, {"type": command, "message": message}
         )
 
     def new_message(self, message):
@@ -173,6 +195,9 @@ class ChatConsumer(WebsocketConsumer):
 
     def send_message(self, message):
         self.send(text_data=json.dumps(message))
+
+    def send_all(self, message):
+        pass
 
     def chat_message(self, event):
         message = event["message"]
