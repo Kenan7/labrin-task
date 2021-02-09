@@ -1,10 +1,20 @@
 {% for item in filemodel_list %}
 
 <li class="list-group-item d-flex justify-content-between align-items-center">
-    <a href="{% url 'file_detail_view_url' item.id %}">
-        {{ item.name }}</a>
+    <div class="justify-content-start">
+        <div class="badge bg-dark text-wrap p-2">
+            <a href="{% url 'file_detail_view_url' item.id %}" class="text-decoration-none text-light fs-4">
+                {{ item.name }}</a>
+        </div>
 
+        <a href="{{ item.file_itself.url }}" class="ms-2 text-dark text-decoration-none" data-bs-toggle="tooltip"
+            data-bs-placement="top" title="Opens the file in the browser"> <i
+                class="bi bi-arrow-up-right-square bi-xl-n"></i></a>
 
+        <a href="{{ item.file_itself.url }}" class="ms-2 text-dark text-decoration-none" download
+            data-bs-toggle="tooltip" data-bs-placement="top" title="Downloads the file"> <i
+                class="bi bi-download bi-xl-n"></i></a>
+    </div>
     <div class="d-flex justify-content-between align-items-center">
 
         <div class="d-flex ms-4">

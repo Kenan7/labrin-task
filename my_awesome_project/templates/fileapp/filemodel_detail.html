@@ -8,14 +8,31 @@
 {{ fileitem.id|json_script:"fileid" }}
 {{ user.username|json_script:"current_username" }}
 
+{% comment %}
+{{ user.id|json_script:"current_user_id" }}
+{{ fileitem.owner.id|json_script:"file_owner_id" }}
+{% endcomment %}
+
+
+
+{% if user.id == fileitem.owner.id %}
+{{ True|json_script:"is_owner" }}
+
+{% else %}
+{{ False|json_script:"is_owner" }}
+{% endif %}
+
+
 <div class="container" id="app">
 
     <div class="row">
         <div class="col-8">
             <h2 class="mb-4"><a href="{{ fileitem.file_itself.url }}" class="text-dark">{{ fileitem.name }}</a></h2>
 
-            <ul class="list-group" id="chat-log">
-            </ul>
+            <div class="scrollable">
+                <ul class="list-group" id="chat-log">
+                </ul>
+            </div>
 
             <div class="row mt-2 g-3">
 
@@ -24,7 +41,8 @@
                 </div>
                 <div class="col-auto">
                     <button type="button" id="chat-message-submit"
-                        class="btn btn-dark mb-3 {% if user not in fileitem.commenters.all %}disabled{%endif%}">send</button>
+                        class="btn btn-dark mb-3 {% if user not in fileitem.commenters.all %}disabled{%endif%}"><i
+                            class="bi bi-arrow-up-right bi-l"></i></button>
                 </div>
             </div>
             {{ room_name|json_script:"room-name" }}
@@ -38,11 +56,15 @@
 
                     {% for viewer in fileitem.viewers.all %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">{{ viewer.username }}
+                        {% if user.id == fileitem.owner.id %}
+
                         <form action="{% url 'remove_viewer' viewer_id=viewer.id filemodel_id=fileitem.id %}"
                             method="POST" name="form_remove_viewer_{{viewer.id}}_">{% csrf_token %}
                             <span class="clickable" onclick="form_remove_viewer_{{viewer.id}}_.submit()">
                                 <i class="bi bi-trash bi-xl"></i></span>
                         </form>
+                        {% endif %}
+
                     </li>
                     {% endfor %}
 
@@ -57,11 +79,13 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         {{ commenter.username }}
 
+                        {% if user.id == fileitem.owner.id %}
                         <form action="{% url 'remove_commenter' commenter_id=commenter.id filemodel_id=fileitem.id %}"
                             method="POST" name="form_remove_commenter_{{commenter.id}}_">{% csrf_token %}
                             <span class="clickable" onclick="form_remove_commenter_{{commenter.id}}_.submit()">
                                 <i class="bi bi-trash bi-xl"></i></span>
                         </form>
+                        {% endif %}
                     </li>
                     {% endfor %}
 
@@ -75,13 +99,13 @@
                         <div class="col-auto">
 
                             <label for="viewer_check">Viewer</label>
-                            <input type="checkbox" name="viewer_check" id="">
+                            <input type="checkbox" name="viewer_check">
                         </div>
 
                         <div class="col-auto">
 
                             <label for="commenter_check">Commenter</label>
-                            <input type="checkbox" name="commenter_check" id="">
+                            <input type="checkbox" name="commenter_check">
                         </div>
                     </div>
 
@@ -97,6 +121,17 @@
                     </div>
                 </form>
             </div>
+
+            {% if user.id == fileitem.owner.id %}
+            <div class="p-1 d-flex justify-content-center">
+                <div class="row g-5 mb-2">
+                    <div class="col-auto">
+
+                        <button class="btn btn-dark" id="delete_all_comments">Delete all messages</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -107,6 +142,11 @@
 
 
 {% block javascript %}
+<script src="{% static 'js/websocket/reconnecting-websocket.min.js' %}">
+</script>
+
+
+
 <script>
     // async function removeFromViewers(event) {
 
@@ -130,21 +170,63 @@
 
 
 
-    function createLiElement(name) {
-        let li = document.createElement('li');
-        let span = document.createElement('span');
-        span.textContent = name;
-        li.classList.add('list-group-item');
-        li.classList.add('te');
-        return li;
-    }
+
+
 
     setTimeout(function () {
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
         const current_username = JSON.parse(document.getElementById('current_username').textContent);
 
-        const chatSocket = new WebSocket(
+        const is_owner = JSON.parse(document.getElementById('is_owner').textContent);
+        console.log(typeof (is_owner));
+
+        setTimeout(function () {
+            var tm = document.getElementById('delete_all_comments');
+            tm.onclick = function (e) {
+                deleteAllMessages();
+            }
+        }, 1000);
+
+
+        function createMessage(message) {
+            let div_outer = document.createElement('div');
+            let div_icon = document.createElement('div');
+            let li = document.createElement('li');
+            let kbd = document.createElement('kbd');
+            let p = document.createElement('p');
+
+            div_outer.classList.add('d-flex', 'align-items-center', 'justify-content-between');
+            li.classList.add('list-group-item', 'd-flex', 'align-items-center', 'justify-content-between');
+            div_icon.classList.add("justify-content-end");
+            p.classList.add('my-0');
+
+            kbd.textContent = message.author + " / " + message.created_at;
+            p.textContent = "  →  " + message.text;
+
+            div_outer.prepend(kbd);
+            div_outer.appendChild(p);
+
+            li.prepend(div_outer);
+
+            if (is_owner) {
+                let remove_comment = document.createElement('i');
+                remove_comment.classList.add('bi', 'bi-trash', 'bi-xl', 'clickable');
+                remove_comment.value = message.id;
+
+                div_icon.appendChild(remove_comment);
+                li.appendChild(div_icon);
+
+                remove_comment.onclick = function (ev) {
+                    delete_message(ev);
+                }
+            }
+            return li;
+        }
+
+
+
+        const chatSocket = new ReconnectingWebSocket(
             'ws://' +
             window.location.host +
             '/ws/chat/' +
@@ -155,13 +237,47 @@
         chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             const ul = document.querySelector('#chat-log');
-            ul.appendChild(createLiElement(data.message.from + "-> " + data.message.text + " :" + data
-                .message.created_at + ":"));
+            console.log(data);
+            if (data.command === 'messages') {
+                console.log('uh uh new messages are comiing. ruuun');
+
+
+                for (let i = 0; i < data.messages.length; i++) {
+                    ul.appendChild(createMessage(data.messages[i]));
+                }
+
+
+            } else {
+                ul.appendChild(createMessage(data.message));
+
+            }
+
         };
+
+        chatSocket.onopen = function (e) {
+            chatSocket.send(JSON.stringify({
+                'command': 'fetch_messages'
+            }));
+        }
 
         chatSocket.onclose = function (e) {
             console.error('Chat socket closed unexpectedly');
         };
+
+        function delete_message(ev) {
+            console.log("icon click - " + ev.target.value);
+            chatSocket.send(JSON.stringify({
+                'message': ev.target.value,
+                'command': 'delete_message',
+            }));
+        }
+
+        function deleteAllMessages() {
+            chatSocket.send(JSON.stringify({
+                'command': 'delete_all_messages',
+                'message': 'null',
+            }));
+        }
 
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function (e) {

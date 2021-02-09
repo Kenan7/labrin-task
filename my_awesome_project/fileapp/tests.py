@@ -36,24 +36,36 @@ class AddTestCase(TestCase):
 
         days_from_now_on = today - timedelta(days=8)
 
-        current_file = FileModel.objects.create(
+        file_should_be_deleted = FileModel.objects.create(
             name="test.js", file_itself=example_file, owner=current_user
         )
 
-        self.assertEqual("test.js" == current_file.name)
+        file_should_not_be_deleted = FileModel.objects.create(
+            name="main.py", file_itself=example_file, owner=current_user
+        )
 
-        current_id = current_file.id
+        self.assertEqual("test.js", file_should_be_deleted.name)
 
-        current_file.viewers.set([current_user])
-        current_file.commenters.set([current_user])
+        file_should_be_deleted_id = file_should_be_deleted.id
+        file_should_not_be_deleted_id = file_should_not_be_deleted.id
 
-        self.assertTrue(current_user in current_file.viewers.all())
-        self.assertTrue(current_user in current_file.commenters.all())
+        file_should_be_deleted.viewers.set([current_user])
+        file_should_be_deleted.commenters.set([current_user])
 
-        current_file.created_at = days_from_now_on
-        current_file.save()
+        self.assertTrue(current_user in file_should_be_deleted.viewers.all())
+        self.assertTrue(
+            current_user in file_should_be_deleted.commenters.all()
+        )
+
+        file_should_be_deleted.created_at = days_from_now_on
+        file_should_be_deleted.save()
 
         result = delete_old_files.delay()
         self.assertTrue(result.successful())
 
-        self.assertFalse(FileModel.objects.filter(id=current_id).exists())
+        self.assertFalse(
+            FileModel.objects.filter(id=file_should_be_deleted_id).exists()
+        )
+        self.assertTrue(
+            FileModel.objects.filter(id=file_should_not_be_deleted_id).exists()
+        )
