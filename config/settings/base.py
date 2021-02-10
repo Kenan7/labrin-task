@@ -77,9 +77,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "my_awesome_project.chat.apps.ChatConfig",
     "my_awesome_project.users.apps.UsersConfig",
     "my_awesome_project.fileapp.apps.FileappConfig",
-    "chat.apps.ChatConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
