@@ -6,8 +6,8 @@ from pathlib import Path
 import environ
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# my_awesome_project/
-APPS_DIR = ROOT_DIR / "my_awesome_project"
+# labrin_task/
+APPS_DIR = ROOT_DIR / "labrin_task"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -42,7 +42,7 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db("DATABASE_URL", default="postgres:///my_awesome_project")
+    "default": env.db("DATABASE_URL", default="postgres:///labrin_task")
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
@@ -77,9 +77,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "my_awesome_project.chat.apps.ChatConfig",
-    "my_awesome_project.users.apps.UsersConfig",
-    "my_awesome_project.fileapp.apps.FileappConfig",
+    "labrin_task.chat.apps.ChatConfig",
+    "labrin_task.users.apps.UsersConfig",
+    "labrin_task.fileapp.apps.FileappConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -87,7 +87,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "my_awesome_project.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "labrin_task.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "my_awesome_project.utils.context_processors.settings_context",
+                "labrin_task.utils.context_processors.settings_context",
             ],
         },
     }
@@ -296,11 +296,9 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "my_awesome_project.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "labrin_task.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = (
-    "my_awesome_project.users.adapters.SocialAccountAdapter"
-)
+SOCIALACCOUNT_ADAPTER = "labrin_task.users.adapters.SocialAccountAdapter"
 
 
 # Your stuff...
@@ -319,7 +317,7 @@ from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
     "delete_files_older_than_x_days": {
-        "task": "my_awesome_project.fileapp.tasks.delete_old_files",
+        "task": "labrin_task.fileapp.tasks.delete_old_files",
         "schedule": 20.0,
     }
 }

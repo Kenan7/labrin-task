@@ -1,6 +1,6 @@
 from django.urls import path
 
-from my_awesome_project.users.views import (
+from labrin_task.users.views import (
     user_detail_view,
     user_redirect_view,
     user_update_view,

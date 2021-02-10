@@ -6,10 +6,10 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.http.response import Http404
 from django.test import RequestFactory
 
-from my_awesome_project.users.forms import UserChangeForm
-from my_awesome_project.users.models import User
-from my_awesome_project.users.tests.factories import UserFactory
-from my_awesome_project.users.views import (
+from labrin_task.users.forms import UserChangeForm
+from labrin_task.users.models import User
+from labrin_task.users.tests.factories import UserFactory
+from labrin_task.users.views import (
     UserRedirectView,
     UserUpdateView,
     user_detail_view,

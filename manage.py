@@ -24,8 +24,8 @@ if __name__ == "__main__":
         raise
 
     # This allows easy placement of apps within the interior
-    # my_awesome_project directory.
+    # labrin_task directory.
     current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "my_awesome_project"))
+    sys.path.append(str(current_path / "labrin_task"))
 
     execute_from_command_line(sys.argv)

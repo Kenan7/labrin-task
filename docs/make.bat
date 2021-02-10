@@ -10,7 +10,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=_source
 set BUILDDIR=_build
-set APP=..\my_awesome_project
+set APP=..\labrin_task
 
 if "%1" == "" goto help
 

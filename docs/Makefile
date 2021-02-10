@@ -3,11 +3,11 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?= 
+SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build -c .
 SOURCEDIR     = .
 BUILDDIR      = ./_build
-APP = ../my_awesome_project
+APP = ../labrin_task
 
 
 .PHONY: help livehtml apidocs Makefile
@@ -22,7 +22,7 @@ livehtml:
 
 # Outputs rst files from django application code
 apidocs:
-	sphinx-apidoc -o $(SOURCEDIR)/api ../my_awesome_project
+	sphinx-apidoc -o $(SOURCEDIR)/api ../labrin_task
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

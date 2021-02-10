@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db.models import CASCADE, SET_NULL, CharField, ForeignKey
 
-from my_awesome_project.common import TimeStampedModel
-from my_awesome_project.fileapp.models import FileModel
+from labrin_task.common import TimeStampedModel
+from labrin_task.fileapp.models import FileModel
 
 User = get_user_model()
 

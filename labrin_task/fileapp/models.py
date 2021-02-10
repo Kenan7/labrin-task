@@ -9,7 +9,7 @@ from django.db.models import (
     ManyToManyField,
 )
 
-from my_awesome_project.common import TimeStampedModel
+from labrin_task.common import TimeStampedModel
 
 User = get_user_model()
 # User = settings.AUTH_USER_MODEL

@@ -7,8 +7,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from my_awesome_project.fileapp.models import FileModel
-from my_awesome_project.fileapp.tasks import delete_old_files
+from labrin_task.fileapp.models import FileModel
+from labrin_task.fileapp.tasks import delete_old_files
 
 User = get_user_model()
 

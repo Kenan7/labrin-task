@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 
-from my_awesome_project.fileapp.models import FileModel
+from labrin_task.fileapp.models import FileModel
 
 from .models import ChatMessages
 
