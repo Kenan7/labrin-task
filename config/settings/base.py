@@ -41,9 +41,25 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+# DATABASES = {
+#     "default": env.db("DATABASE_URL", default="postgres:///my_awesome_project")
+# }
+
+# DATABASES = {
+#         'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'PASSWORD': 'randomized',
+#         'HOST': '0.0.0.0',
+#         'PORT': 5474,
+#     }
+# }
+
 DATABASES = {
     "default": env.db("DATABASE_URL", default="postgres:///labrin_task")
 }
+
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # URLS
@@ -294,7 +310,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "username"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = "none"  # "mandatory" to make it required
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "labrin_task.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -309,11 +325,16 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6379)],  # TODO: fetch this from .env
+            "hosts": [
+                (
+                    env.str("REDIS_CHANNEL_HOST", "127.0.0.1"),
+                    env.int("REDIS_CHANNEL_PORT", 6379),
+                )
+            ],
         },
     },
 }
-from celery.schedules import crontab
+# from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
     "delete_files_older_than_x_days": {

@@ -1,0 +1,56 @@
+version: "3.3"
+   
+services:
+    django:
+        build: .
+        container_name: django
+        command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --no-input && daphne -b 0.0.0.0 -p 8000 config.asgi:application"
+        volumes:
+            - .:/usr/src/app/
+        ports:
+            - "7000:8000"
+        env_file: 
+            - .env
+
+        depends_on:
+            - cloud-sql-proxy
+            - redis
+    celery:
+        build: .
+        command: celery -A config.celery_app worker
+        volumes:
+            - .:/usr/src/app
+        env_file: 
+            - .env
+
+        depends_on:
+            - django
+            - redis
+
+    celery-beat:
+        build: .
+        command: celery -A config.celery_app beat
+        volumes:
+            - .:/usr/src/app
+        env_file: 
+            - .env
+
+        depends_on:
+            - django
+            - celery
+            - redis
+
+    cloud-sql-proxy:
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        command: /cloud_sql_proxy -instances=main-291913:europe-west2:fileshare=tcp:0.0.0.0:5474 -credential_file=/config
+        volumes:
+          - ./credentials.json:/config
+        ports:
+          - 5474:5474
+
+
+    redis:
+        image: "redis:alpine"
+        
+# volumes:
+#     pgdata:

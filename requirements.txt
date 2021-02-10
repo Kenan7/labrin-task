@@ -31,7 +31,7 @@ defusedxml==0.6.0
 distlib==0.3.1
 Django==3.1.6
 django-allauth==0.44.0
-django-celery==3.3.1
+# django-celery==3.3.1
 django-celery-beat==2.2.0
 django-coverage-plugin==1.8.0
 django-crispy-forms==1.11.0
@@ -142,3 +142,5 @@ Werkzeug==1.0.1
 whitenoise==5.2.0
 wrapt==1.12.1
 zope.interface==5.2.0
+django-widget-tweaks
+daphne
