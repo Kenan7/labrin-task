@@ -57,7 +57,6 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # }
 
 DATABASES = {
-
     "default": env.db("DATABASE_URL", default="postgres:///labrin_task")
 }
 
@@ -311,7 +310,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "username"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = "none"  # "mandatory" to make it required
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "labrin_task.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -326,7 +325,12 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(env.str("REDIS_CHANNEL_HOST", "127.0.0.1"), env.int("REDIS_CHANNEL_PORT", 6379))],
+            "hosts": [
+                (
+                    env.str("REDIS_CHANNEL_HOST", "127.0.0.1"),
+                    env.int("REDIS_CHANNEL_PORT", 6379),
+                )
+            ],
         },
     },
 }
