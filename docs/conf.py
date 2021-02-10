@@ -28,8 +28,8 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = "My Awesome Project"
-copyright = """2021, Daniel Roy Greenfeld"""
-author = "Daniel Roy Greenfeld"
+copyright = """2021, Mirkenan Kazımzade"""
+author = "Mirkenan Kazımzade"
 
 
 # -- General configuration ---------------------------------------------------

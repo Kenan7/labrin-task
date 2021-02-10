@@ -5,13 +5,13 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
-from my_awesome_project.fileapp.views import file_list_view
+from labrin_task.fileapp.views import file_list_view
 
 urlpatterns = [
     path("", file_list_view, name="home"),
     path(
         "files/",
-        include("my_awesome_project.fileapp.urls"),
+        include("labrin_task.fileapp.urls"),
     ),
     path(
         "about/",
@@ -21,9 +21,7 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
-    path(
-        "users/", include("my_awesome_project.users.urls", namespace="users")
-    ),
+    path("users/", include("labrin_task.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

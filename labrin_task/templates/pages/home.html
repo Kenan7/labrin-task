@@ -1,0 +1,47 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+
+
+{% if user.is_authenticated %}
+<div class="container">
+    <div class="p-0">
+        <div class="p-5">
+            <form action="{% url 'file_upload_view' %}" class="dropzone" id="customDropzone">
+                <input type="text" name="file_description" placeholder="write a description first"
+                    value="default description   // edit this before you upload the file"
+                    class="form-control dropzone-description" />
+                {% csrf_token %}
+                <div class="fallback"><input type="file" name="file" multiple></div>
+            </form>
+        </div>
+    </div>
+
+
+    {% if filemodel_list %}
+    <ul class="list-group file-list mb-5" id="file-list">
+        {% include 'pages/filelist_swap.html' %}
+    </ul>
+
+
+    {% else %}
+    <div class="mx-auto">
+        <h3>You don't have any file</h3>
+    </div>
+    {% endif %}
+</div>
+
+
+<!-- TODO: change dropzone to accept only one file  -->
+<div class="fixed-bottom">
+
+</div>
+
+{% else %}
+
+<h1><a href="{% url 'account_login' %}">Login</a> or <a href="{% url 'account_signup' %}">Register</a> to upload
+    files.</h1>
+{% endif %}
+
+
+{% endblock content %}

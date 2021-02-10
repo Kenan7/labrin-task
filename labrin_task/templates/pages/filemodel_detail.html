@@ -1,0 +1,331 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}{{ fileitem.name }}{% endblock %}
+
+{% block content %}
+
+{{ fileitem.id|json_script:"fileid" }}
+{{ user.username|json_script:"current_username" }}
+
+{% comment %}
+{{ user.id|json_script:"current_user_id" }}
+{{ fileitem.owner.id|json_script:"file_owner_id" }}
+{% endcomment %}
+
+
+
+{% if user.id == fileitem.owner.id %}
+{{ True|json_script:"is_owner" }}
+
+{% else %}
+{{ False|json_script:"is_owner" }}
+{% endif %}
+
+
+<div class="container" id="app">
+
+    <div class="row">
+        <div class="col-8">
+            <h2 class="mb-4"><a href="{{ fileitem.file_itself.url }}" class="text-dark">{{ fileitem.name }}</a> <a
+                    href="{{ fileitem.file_itself.url }}" class="ms-2 text-dark text-decoration-none"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Opens the file in the browser"> <i
+                        class="bi bi-arrow-up-right-square bi-xl-n"></i></a>
+
+                <a href="{{ fileitem.file_itself.url }}" class="ms-2 text-dark text-decoration-none" download
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Downloads the file"> <i
+                        class="bi bi-download bi-xl-n"></i></a></h2>
+
+
+
+            {% if user.id == fileitem.owner.id %}
+            <h4 class="mb-4">{{ fileitem.description }}</h4>
+            {% endif %}
+
+
+
+
+            <!-- note that this section is intentional.
+            we can restrict the user even not seeing the comments,
+            but we are just restricting them from sending any comment -->
+            <div class="scrollable">
+                <ul class="list-group" id="chat-log">
+                </ul>
+            </div>
+
+            <div class="row mt-2 g-3">
+
+                <div class="col-auto">
+                    <input type="text" class="form-control" id="chat-message-input">
+                </div>
+                <div class="col-auto">
+                    <button type="button" id="chat-message-submit"
+                        class="btn btn-dark mb-3 {% if user not in fileitem.commenters.all %}disabled{%endif%}"><i
+                            class="bi bi-arrow-up-right bi-l"></i></button>
+                </div>
+            </div>
+            {{ room_name|json_script:"room-name" }}
+
+        </div>
+
+        <div class="col-4">
+            {% if user.id != fileitem.owner.id %}
+
+            <div class="p-4">
+                <h3>{{ fileitem.description }} </h3>
+            </div>
+
+            {% elif user.id == fileitem.owner.id %}
+
+            <div class="viewers mb-4">
+                <h3>Viewers</h3>
+                <ul class="list-group">
+
+                    {% for viewer in fileitem.viewers.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">{{ viewer.username }}
+                        {% if user.id == fileitem.owner.id %}
+
+                        <form action="{% url 'remove_viewer' viewer_id=viewer.id filemodel_id=fileitem.id %}"
+                            method="POST" name="form_remove_viewer_{{viewer.id}}_">{% csrf_token %}
+                            <span class="clickable" onclick="form_remove_viewer_{{viewer.id}}_.submit()">
+                                <i class="bi bi-trash bi-xl"></i></span>
+                        </form>
+                        {% endif %}
+
+                    </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+
+            <div class="commenters mb-4">
+                <h3>Commenters</h3>
+                <ul class="list-group">
+
+                    {% for commenter in fileitem.commenters.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ commenter.username }}
+
+                        {% if user.id == fileitem.owner.id %}
+                        <form action="{% url 'remove_commenter' commenter_id=commenter.id filemodel_id=fileitem.id %}"
+                            method="POST" name="form_remove_commenter_{{commenter.id}}_">{% csrf_token %}
+                            <span class="clickable" onclick="form_remove_commenter_{{commenter.id}}_.submit()">
+                                <i class="bi bi-trash bi-xl"></i></span>
+                        </form>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+
+            <div class="p-1 d-flex justify-content-center">
+                <form class="" method="POST" action="{% url 'add_viewer_commenter_to_file' filemodel_id=fileitem.id %}">
+                    {% csrf_token %}
+                    <div class="row g-5 mb-2">
+                        <div class="col-auto">
+
+                            <label for="viewer_check">Viewer</label>
+                            <input type="checkbox" name="viewer_check">
+                        </div>
+
+                        <div class="col-auto">
+
+                            <label for="commenter_check">Commenter</label>
+                            <input type="checkbox" name="commenter_check">
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-auto">
+                            <input type="text" class="form-control" id="inputPassword2" placeholder="email or username"
+                                name="credentials">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-dark mb-3">add</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="p-1 d-flex justify-content-center">
+                <div class="row g-5 mb-2">
+                    <div class="col-auto">
+
+                        <button class="btn btn-dark" id="delete_all_comments">Delete all messages</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+</div>
+{% endblock content %}
+
+
+
+{% block javascript %}
+<script src="{% static 'js/websocket/reconnecting-websocket.min.js' %}">
+</script>
+
+
+
+<script>
+    // async function removeFromViewers(event) {
+
+    //     const filemodel_id = JSON.parse(document.getElementById('fileid').textContent);
+    //     const baseurl = "http://" + window.location.host + "/remove/viewer/";
+
+    //     const requestOptions = {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({
+    //             user_id: event.target.value,
+    //             filemodel_id: filemodel_id
+    //         })
+    //     };
+    //     const response = await fetch(baseurl, requestOptions);
+    //     const data = await response.json();
+    //     console.log(data);
+    // };
+
+
+
+
+
+
+    setTimeout(function () {
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const current_username = JSON.parse(document.getElementById('current_username').textContent);
+
+        const is_owner = JSON.parse(document.getElementById('is_owner').textContent);
+        console.log(typeof (is_owner));
+
+        setTimeout(function () {
+            var tm = document.getElementById('delete_all_comments');
+            tm.onclick = function (e) {
+                deleteAllMessages();
+            }
+        }, 1000);
+
+
+        function createMessage(message) {
+            let div_outer = document.createElement('div');
+            let div_icon = document.createElement('div');
+            let li = document.createElement('li');
+            let kbd = document.createElement('kbd');
+            let p = document.createElement('p');
+
+            div_outer.classList.add('d-flex', 'align-items-center', 'justify-content-between');
+            li.classList.add('list-group-item', 'd-flex', 'align-items-center', 'justify-content-between');
+            div_icon.classList.add("justify-content-end");
+            p.classList.add('my-0');
+
+            kbd.textContent = message.author + " / " + message.created_at;
+            p.textContent = "  →  " + message.text;
+
+            div_outer.prepend(kbd);
+            div_outer.appendChild(p);
+
+            li.prepend(div_outer);
+
+            if (is_owner) {
+                let remove_comment = document.createElement('i');
+                remove_comment.classList.add('bi', 'bi-trash', 'bi-xl', 'clickable');
+                remove_comment.value = message.id;
+
+                div_icon.appendChild(remove_comment);
+                li.appendChild(div_icon);
+
+                remove_comment.onclick = function (ev) {
+                    delete_message(ev);
+                }
+            }
+            return li;
+        }
+
+
+
+        const chatSocket = new ReconnectingWebSocket(
+            'ws://' +
+            window.location.host +
+            '/ws/chat/' +
+            roomName +
+            '/'
+        );
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            const ul = document.querySelector('#chat-log');
+            console.log(data);
+            if (data.command === 'messages') {
+                console.log('uh uh new messages are comiing. ruuun');
+                ul.innerHTML = '';
+
+
+                for (let i = 0; i < data.messages.length; i++) {
+                    ul.appendChild(createMessage(data.messages[i]));
+                }
+
+
+            } else if (data.command === 'empty') {
+                ul.innerHTML = '';
+            } else {
+                ul.appendChild(createMessage(data.message));
+
+            }
+
+        };
+
+        chatSocket.onopen = function (e) {
+            chatSocket.send(JSON.stringify({
+                'command': 'fetch_messages'
+            }));
+        }
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        function delete_message(ev) {
+            console.log("icon click - " + ev.target.value);
+            chatSocket.send(JSON.stringify({
+                'message': ev.target.value,
+                'command': 'delete_message',
+            }));
+        }
+
+        function deleteAllMessages() {
+            chatSocket.send(JSON.stringify({
+                'command': 'delete_all_messages',
+                'message': 'null',
+            }));
+        }
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) { // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function (e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'command': 'new_message',
+                'from': current_username
+            }));
+            messageInputDom.value = '';
+        };
+    }, 1500);
+
+</script>
+{% endblock javascript %}
