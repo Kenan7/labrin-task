@@ -121,25 +121,34 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def delete_message(self, message):
-        log.info(message)
-        try:
-            self.filemodel_object.messages.get(message["message"]).delete()
-        except:
-            # we cache again
-            self.filemodel_object = FileModel.objects.get(id=self.room_name)
-            self.filemodel_object.messages.get(id=message["message"]).delete()
+        # let's check if you are really the owner
+        if self.scope.get("user", "none") == self.filemodel_object.owner:
+            try:
+                self.filemodel_object.messages.get(message["message"]).delete()
+            except:
+                # we cache again
+                self.filemodel_object = FileModel.objects.get(
+                    id=self.room_name
+                )
+                self.filemodel_object.messages.get(
+                    id=message["message"]
+                ).delete()
 
-            self.fetch_all_after_delete()
-        finally:
-            pass
+                self.fetch_all_after_delete()
+            finally:
+                pass
 
     def delete_all_messages(self, message):
-        try:
-            self.filemodel_object = FileModel.objects.get(id=self.room_name)
-            log.info(self.filemodel_object.messages.delete())
+        # let's check if you are really the owner
+        if self.scope.get("user", "none") == self.filemodel_object.owner:
+            try:
+                self.filemodel_object = FileModel.objects.get(
+                    id=self.room_name
+                )
+                log.info(self.filemodel_object.messages.delete())
 
-        except:
-            pass
+            except:
+                pass
 
     def messages_to_json(self, messages):
         result = []
@@ -171,33 +180,46 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def new_message(self, message):
-        author = message["from"]
-        if author in self.frequent_users:
-            user = self.frequent_users[author]
+        if (
+            self.scope.get("user", None)
+            in self.filemodel_object.commenters.all()
+        ):
+
+            author = message["from"]
+            if author in self.frequent_users:
+                user = self.frequent_users[author]
+            else:
+                user = User.objects.get(username=author)
+                self.frequent_users[author] = user
+
+            new_created_message = self.filemodel_object.messages.create(
+                text=message["message"], author=user
+            )
+
+            content = {
+                "command": "new_message",
+                "message": self.message_to_json(new_created_message),
+            }
+            return self.send_chat_message(content)
+
         else:
-            user = User.objects.get(username=author)
-            self.frequent_users[author] = user
-
-        new_created_message = self.filemodel_object.messages.create(
-            text=message["message"], author=user
-        )
-
-        content = {
-            "command": "new_message",
-            "message": self.message_to_json(new_created_message),
-        }
-        return self.send_chat_message(content)
+            log.info("wait.. how did you get here?!")
+            log.info(self.scope)
 
     # Receive message from WebSocket
     def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        self.commands[text_data_json["command"]](self, text_data_json)
+        try:
+            if self.scope["user"] in self.filemodel_object.commenters.all():
+                text_data_json = json.loads(text_data)
+                self.commands[text_data_json["command"]](self, text_data_json)
+        except:
+            # we could also save it to second db, but with apps like logdna, we will access this logs anyway
+            log.info(f"let's see what happened here.. {self.scope}")
+        finally:
+            pass
 
     def send_message(self, message):
         self.send(text_data=json.dumps(message))
-
-    def send_all(self, message):
-        pass
 
     def chat_message(self, event):
         message = event["message"]

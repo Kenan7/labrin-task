@@ -29,6 +29,16 @@
         <div class="col-8">
             <h2 class="mb-4"><a href="{{ fileitem.file_itself.url }}" class="text-dark">{{ fileitem.name }}</a></h2>
 
+            {% if user.id == fileitem.owner.id %}
+            <h4 class="mb-4">{{ fileitem.description }}</h4>
+            {% endif %}
+
+
+
+
+            <!-- note that this section is intentional.
+            we can restrict the user even not seeing the comments,
+            but we are just restricting them from sending any comment -->
             <div class="scrollable">
                 <ul class="list-group" id="chat-log">
                 </ul>
@@ -50,6 +60,14 @@
         </div>
 
         <div class="col-4">
+            {% if user.id != fileitem.owner.id %}
+
+            <div class="p-4">
+                <h3>{{ fileitem.description }} </h3>
+            </div>
+
+            {% elif user.id == fileitem.owner.id %}
+
             <div class="viewers mb-4">
                 <h3>Viewers</h3>
                 <ul class="list-group">
@@ -122,7 +140,6 @@
                 </form>
             </div>
 
-            {% if user.id == fileitem.owner.id %}
             <div class="p-1 d-flex justify-content-center">
                 <div class="row g-5 mb-2">
                     <div class="col-auto">
