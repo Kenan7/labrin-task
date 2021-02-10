@@ -27,7 +27,16 @@
 
     <div class="row">
         <div class="col-8">
-            <h2 class="mb-4"><a href="{{ fileitem.file_itself.url }}" class="text-dark">{{ fileitem.name }}</a></h2>
+            <h2 class="mb-4"><a href="{{ fileitem.file_itself.url }}" class="text-dark">{{ fileitem.name }}</a> <a
+                    href="{{ fileitem.file_itself.url }}" class="ms-2 text-dark text-decoration-none"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Opens the file in the browser"> <i
+                        class="bi bi-arrow-up-right-square bi-xl-n"></i></a>
+
+                <a href="{{ fileitem.file_itself.url }}" class="ms-2 text-dark text-decoration-none" download
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Downloads the file"> <i
+                        class="bi bi-download bi-xl-n"></i></a></h2>
+
+
 
             {% if user.id == fileitem.owner.id %}
             <h4 class="mb-4">{{ fileitem.description }}</h4>
