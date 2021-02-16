@@ -104,7 +104,11 @@ class FileListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         current_user = User.objects.get(id=self.request.user.id)
-        return FileModel.objects.filter(owner=current_user)
+        return (
+            FileModel.objects.filter(owner=current_user)
+            .select_related("owner")
+            .prefetch_related("viewers", "commenters")
+        )
 
 
 file_list_view = FileListView.as_view()
