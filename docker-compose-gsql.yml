@@ -13,7 +13,7 @@ services:
             - .env
 
         depends_on:
-            - postgres-db
+            - cloud-sql-proxy
             - redis
     celery:
         build: .
@@ -40,15 +40,17 @@ services:
             - celery
             - redis
 
-    postgres-db:
-        image: postgres:12.0-alpine
+    cloud-sql-proxy:
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        command: /cloud_sql_proxy -instances=main-291913:europe-west2:fileshare=tcp:0.0.0.0:5474 -credential_file=/config
         volumes:
-            - pgdata:/var/lib/postgresql/data/
-        env_file:
-            - ./.env.db
+          - ./credentials.json:/config
+        ports:
+          - 5474:5474
+
 
     redis:
         image: "redis:alpine"
         
-volumes:
-    pgdata:
+# volumes:
+#     pgdata:
