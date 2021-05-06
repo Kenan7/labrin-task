@@ -24,7 +24,6 @@ services:
             - .env
 
         depends_on:
-            - django
             - redis
 
     celery-beat:
